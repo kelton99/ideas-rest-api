@@ -36,7 +36,11 @@ public class IdeaController {
 	}
 	
 	@PostMapping
-	public ResponseEntity<Idea> addIdea(@RequestBody Idea idea){
+	public ResponseEntity<Idea> addIdea(@RequestBody String description){
+		if(!repo.findByDescription(description).isEmpty()) 
+			return ResponseEntity.badRequest().build();
+
+		var idea = new Idea(description, Status.PENDING);
 		return ResponseEntity.ok(repo.save(idea));
 	}
 	
