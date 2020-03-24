@@ -1,6 +1,8 @@
 package com.kelton.ideasapi;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -23,9 +25,24 @@ public class IdeaController {
 	}
 	
 	@GetMapping
-	public ResponseEntity<List<Idea>> getIdeas(){
+	public ResponseEntity<List<ColoredIdea>> getIdeas(){
+		
 		List<Idea> ideas = repo.findAll();
-		return ideas.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(ideas);
+		
+		if(ideas.isEmpty()) { 
+			return ResponseEntity.noContent().build();
+		} else { 
+			List<ColoredIdea> coloredIdeas = new ArrayList<>();
+			ideas.forEach( idea -> {
+				Random random = new Random();
+				int nextInt = random.nextInt(256*256*256);
+				String hexColor = String.format("#%06x", nextInt);
+				
+				var coloredIdea =  new ColoredIdea(idea.getId(),idea.getDescription(), idea.getStatus(), hexColor);
+				coloredIdeas.add(coloredIdea);
+			});
+			return ResponseEntity.ok().body(coloredIdeas);
+		}
 	}
 	
 	@GetMapping("/{id}")
